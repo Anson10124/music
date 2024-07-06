@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythmix</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="icon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body>
+    <div class="music-player">
+        <canvas id="visual"></canvas>
+        <div class="details">
+            <!--<div class="details-bg"></div>-->
+            <div id="info">
+                <img id="image" src="">
+                <div id="text-con">
+                    <div id="name"></div>
+                    <div id="artist"></div>
+                </div>
+            </div>
+        </div>
+        <div id="lyrics-container" class="lyrics-container"></div>
+        <audio id="audio-player"></audio>
+        <div class="player">
+            <!--<div class="player-bg"></div>-->
+            <div class="control-con">
+                <div class="control">
+                    <button id="previous"><i class="fa-solid fa-backward-step"></i></button>
+                    <button id="play"><i class="fas fa-play"></i></button>
+                    <button id="next"><i class="fa-solid fa-forward-step"></i></button>
+                </div>
+                <div class="progress-con">
+                    <span class="current-time"></span>
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <span class="total-time"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="context-menu" class="context-menu">
+        <div class="menu-con">
+            <button id="copy-line-btn">Copy Line</button>
+            <button id="copy-all-btn">Copy All Lyrics</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+</body>
+</html>

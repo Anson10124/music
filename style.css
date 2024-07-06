@@ -1,0 +1,298 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", "Noto Sans SC", sans-serif;
+    background-color: #000000;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
+@media only screen and (min-width: 600px) {
+    .player button:hover {
+        background-color: #ffffff14;
+        ;
+    }
+
+    .progress-bar:hover {
+        height: 15px;
+    }
+
+    .line {
+        text-align: center;
+    }
+
+    .word {
+        font-size: 42px !important;
+    }
+}
+
+.music-player {
+    margin: auto;
+    background-color: #000000;
+}
+
+.menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    color: white;
+    font-size: 20px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#visual {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    filter: blur(100px) brightness(0.4) saturate(2.5);
+    -webkit-filter: blur(100px) brightness(0.4) saturate(2.5);
+}
+
+.details {
+    font-family: "Bebas Neue", "sans-serif";
+    color: #ffffff;
+    display: flex;
+    justify-content: flex-start;
+    position: fixed;
+    top: 0;
+    padding: 20px;
+    z-index: 100;
+    width: calc(100% - 40px);
+}   
+
+.details-bg {
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    mask-image: linear-gradient(180deg, black 70%, transparent);
+    width: 100%;
+    height: 106px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#info {
+    display: flex;
+    justify-content: flex-start;
+    position: fixed;
+}
+
+#text-con {
+    font-size: 23px;
+    margin-left: 1em;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+#image {
+    width: 60px;
+    height: 60px;
+    z-index: 100;
+}
+
+#audio-player {
+    display: none;
+}
+
+.player {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.player-bg {
+    background-image: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(3, 3, 3, 0) 70%, rgba(0, 0, 0, 0) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    mask-image: linear-gradient(0deg, black 80%, transparent);
+    padding: 15px 0;
+    width: 100%;
+    height: 106px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.player button {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    background-color: #00000033;
+    border: none;
+    margin: 8px;
+    font-size: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: background-color 0.5s;
+    padding: 0;
+}
+
+.player i {
+    color: #ffffff80;
+}
+
+.control {
+    width: 100%;
+    text-align: center;
+}
+
+@media only screen and (max-width: 600px) {
+    .control-con {
+        width: 100% !important;
+    }
+}
+
+.control-con {
+    width: 80%;
+    min-width: 240px;
+    z-index: 100;
+    padding: 10px 20px 15px 20px;
+}
+
+.progress-con {
+    display: flex;
+    align-items: center;
+}
+
+.progress-con span {
+    color: #ffffff4d;
+    margin: 0 10px;
+    font-family: "Passion One", sans-serif;
+    font-weight: 400;
+    font-size: 22px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #ffffff0d;
+    border-radius: 12px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.5s linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%);
+}
+
+.progress {
+    height: 100%;
+    background-color: #ffffff26;
+    border-radius: 12px;
+}
+
+.lyrics-container {
+    padding: 60px 20px 75px 20px;
+    font-size: 16px;
+    line-height: 2;
+}
+
+.word {
+    margin-bottom: 10px;
+    color: #ffffff33;
+    font-size: 26px;
+    background-clip: text;
+    display: inline-block;
+    text-align: center;
+    transform: matrix(1, 0, 0, 1, 0, 0);
+    transition: transform 2s;
+}
+
+.word::after {
+    content: "";
+    margin-right: 0.4ch;
+}
+
+.letter {
+    display: inline-block;
+    background-clip: text;
+    color: #ffffff33;
+    transition: transform 1s,text-shadow calc(var(--word-duration) / 2);
+    text-align: center;
+}
+
+.letter-highlight {
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 1) var(--letter-progress), rgba(255, 255, 255, 0) calc(var(--letter-progress) + 40%)) !important;
+}
+
+.letter-played {
+    transform: matrix(1, 0, 0, 1, 0, -5);
+    background-image: linear-gradient(to right, white 0%, white 100%);
+}
+
+.played {
+    background-image: linear-gradient(to right, white 0%, white 100%);
+}
+
+.played:not(:has(.letter)) {
+    transform: matrix(1, 0, 0, 1, 0, -5);
+}
+
+.highlight {
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 1) var(--gradient-progress), rgba(255, 255, 255, 0) calc(var(--gradient-progress) + 20%));
+}
+
+.line {
+    transition: filter 1.5s, background 0.3s;
+    margin: 1.5em 0em 1.5em 0;
+    cursor: pointer;
+    padding: 1em;
+    padding-left: 0.5em;
+    border-radius: 16px;
+}
+
+.context-menu {
+    position: fixed;
+    padding: 16px;
+    border-radius: 16px;
+    background-color: #00000099;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+    opacity: 0;
+}
+
+.menu-con {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+#copy-line-btn,
+#copy-all-btn {
+    background-color: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 18px;
+    padding: 8px;
+    border-radius: 12px;
+    transition: background 0.3s;
+    font-family: "Passion One", sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+#copy-line-btn:hover,
+#copy-all-btn:hover {
+    background-color: #ffffff1a;
+}

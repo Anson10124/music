@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lyrics Combiner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+        #output {
+            white-space: pre-wrap;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lyrics Combiner</h1>
+    <label for="original">Original Lyrics:</label>
+    <textarea id="original"></textarea>
+    <label for="translated">Chinese Translated Lyrics:</label>
+    <textarea id="translated"></textarea>
+    <button onclick="combineLyrics()">Combine Lyrics</button>
+    <h2>Combined Lyrics:</h2>
+    <div id="output"></div>
+
+    <script>
+        function combineLyrics() {
+            const original = document.getElementById('original').value.trim().split('\n');
+            const translated = document.getElementById('translated').value.trim().split('\n');
+            let combined = [];
+            let originalIndex = 0;
+            let translatedIndex = 0;
+
+            while (originalIndex < original.length || translatedIndex < translated.length) {
+                if (originalIndex < original.length) {
+                    const originalLine = original[originalIndex];
+                    const originalStartTimestamp = originalLine.match(/\[.*?\]/g)[0];
+                    combined.push(originalLine);
+
+                    if (translatedIndex < translated.length) {
+                        let translatedLine = translated[translatedIndex];
+                        translatedLine = translatedLine.replace(/\s+/g, ','); // Replace spaces with commas
+                        const translatedText = translatedLine.replace(/\[.*?\]/, '');
+                        const lastOriginalTimestamp = originalLine.match(/\[.*?\]/g).pop();
+                        combined.push(originalStartTimestamp + translatedText + lastOriginalTimestamp);
+                        translatedIndex++;
+                    }
+
+                    originalIndex++;
+                }
+            }
+
+            document.getElementById('output').textContent = combined.join('\n');
+        }
+    </script>
+</body>
+</html>
