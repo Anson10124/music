@@ -184,7 +184,7 @@ window.addEventListener('load', () => {
                 const words = line.text.trim().split(' ');
                 words.forEach(word => {
                     const duration = lyrics[index].duration;
-                    if (duration > 800 && word.length > 1) {
+                    if (duration > 800 && word.length > 1 && word.length < 4) {
                         const wordElement = document.createElement('span');
                         wordElement.dataset.index = index;
                         wordElement.style.setProperty('--word-duration', duration + 'ms');
@@ -241,7 +241,7 @@ window.addEventListener('load', () => {
                     const wordDuration = wordEndTime - wordStartTime;
                     const elapsedTime = currentTime - wordStartTime;
                     const wordProcess = (elapsedTime / wordDuration);
-                    element.style.setProperty("--gradient-progress", `${wordProcess * 100 - 20}%`);
+                    element.style.setProperty("--gradient-progress", `${wordProcess * 120 - 20}%`);
                     const letters = element.querySelectorAll('.letter');
                     if (letters.length > 0) {
                         const letterDuration = parseFloat(letters[0].dataset.letterDuration);
