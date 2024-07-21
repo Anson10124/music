@@ -4,6 +4,7 @@ window.addEventListener('load', () => {
     let lyricsData = [];
     let currentLyricIndex = 0;
     let totalNumberOfSongs = 22;
+    var preventblur = false;
     var nameOutput = document.getElementById('name');
     var artistOutput = document.getElementById('artist');
     var imageOutput = document.getElementById('image');
@@ -35,6 +36,8 @@ window.addEventListener('load', () => {
     var animationId = null;
     const colorThief = new ColorThief();
     const GRAY_TOLERANCE = 10;
+    let blobs = [];
+
     function Effect(imageData) {
         if (currentImage) {
             currentImage.onload = null;
@@ -55,15 +58,17 @@ window.addEventListener('load', () => {
         };
         currentImage.src = imageData;
     }
+
     function applyEffect(smallContext, smallWidth, smallHeight, context, width, height) {
         if (animationId) {
             cancelAnimationFrame(animationId);
         }
         var smallImageData = smallContext.getImageData(0, 0, smallWidth, smallHeight);
         var data = smallImageData.data;
-        var colors = colorThief.getPalette(currentImage, 16);
+        var colors = colorThief.getPalette(currentImage, 12);
         var dominantColor = colorThief.getColor(currentImage);
         var originalDominantColor = dominantColor;
+
         if (isGray(dominantColor)) {
             for (let color of colors) {
                 if (!isGray(color)) {
@@ -72,62 +77,100 @@ window.addEventListener('load', () => {
                 }
             }
         }
+
         if (colors.length > 1 && isGray(colors[1])) {
             dominantColor = originalDominantColor;
         }
+
         document.getElementById('visual').style.backgroundColor = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+
         colors = colors.filter(color =>
             !(color[0] === dominantColor[0] && color[1] === dominantColor[1] && color[2] === dominantColor[2])
         );
-        startLavaLampEffect(context, width, height, colors);
+
+        if (blobs.length === 0) {
+            blobs = createBlobs(20, colors);
+        } else {
+            updateBlobsColors(colors);
+        }
+
+        startLavaLampEffect(context, width, height);
     }
+
     function isGray(color) {
         return Math.abs(color[0] - color[1]) < GRAY_TOLERANCE &&
             Math.abs(color[1] - color[2]) < GRAY_TOLERANCE &&
             Math.abs(color[0] - color[2]) < GRAY_TOLERANCE;
     }
-    function startLavaLampEffect(context, width, height, colors) {
-        const blobs = createBlobs(10, colors);
-        animateBlobs(context, width, height, blobs);
+
+    function updateBlobsColors(colors) {
+        blobs.forEach((blob, index) => {
+            let newColor = colors[index % colors.length];
+            blob.targetColor = newColor;
+            blob.colorTransitionProgress = 0;
+        });
     }
-    function animateBlobs(context, width, height, blobs) {
+
+    function startLavaLampEffect(context, width, height) {
+        animateBlobs(context, width, height);
+    }
+
+    function animateBlobs(context, width, height) {
         context.clearRect(0, 0, width, height);
         blobs.forEach(blob => {
             context.beginPath();
             context.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
-            context.fillStyle = `rgba(${blob.color[0]}, ${blob.color[1]}, ${blob.color[2]}, 0.9)`;
+
+            // Smooth transition between colors
+            blob.colorTransitionProgress = Math.min(blob.colorTransitionProgress + 0.01, 1);
+            let r = interpolate(blob.color[0], blob.targetColor[0], blob.colorTransitionProgress);
+            let g = interpolate(blob.color[1], blob.targetColor[1], blob.colorTransitionProgress);
+            let b = interpolate(blob.color[2], blob.targetColor[2], blob.colorTransitionProgress);
+            context.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
             context.fill();
+
             blob.dx += (blob.targetDx - blob.dx) * 0.001;
             blob.dy += (blob.targetDy - blob.dy) * 0.001;
             blob.x += blob.dx;
             blob.y += blob.dy;
+
             if (blob.x - blob.radius > width) {
                 blob.x = -blob.radius;
             } else if (blob.x + blob.radius < 0) {
                 blob.x = width + blob.radius;
             }
+
             if (blob.y - blob.radius > height) {
                 blob.y = -blob.radius;
             } else if (blob.y + blob.radius < 0) {
                 blob.y = height + blob.radius;
             }
+
             if (Math.random() < 0.001) {
                 changeDirection(blob);
             }
+
+            // Update blob color
+            if (blob.colorTransitionProgress === 1) {
+                blob.color = blob.targetColor;
+            }
         });
-        animationId = requestAnimationFrame(() => animateBlobs(context, width, height, blobs));
+        animationId = requestAnimationFrame(() => animateBlobs(context, width, height));
     }
+
     function changeDirection(blob) {
         blob.targetDx = (Math.random() * 2 - 1) * 1.5;
         blob.targetDy = (Math.random() * 2 - 1) * 1.5;
         blob.angle = Math.random() * Math.PI * 2;
     }
+
     function createBlobs(numBlobs, colors) {
         const blobs = [];
         for (let i = 0; i < numBlobs; i++) {
             let dx = (Math.random() * 2 - 1) * 1.5;
             let dy = (Math.random() * 2 - 1) * 1.5;
             let blobSize = Math.sqrt(window.innerHeight * window.innerWidth) / 10;
+            let initialColor = colors[i % colors.length];
             blobs.push({
                 x: Math.random() * window.innerWidth,
                 y: Math.random() * window.innerHeight,
@@ -136,12 +179,19 @@ window.addEventListener('load', () => {
                 dy: dy,
                 targetDx: dx,
                 targetDy: dy,
-                color: colors[i % colors.length],
+                color: initialColor, // Initialize with a color from the palette
+                targetColor: initialColor, // Set target color to the same initial color
+                colorTransitionProgress: 1, // Start with the color fully applied
                 angle: Math.random() * Math.PI * 2
             });
         }
         return blobs;
     }
+
+    function interpolate(start, end, progress) {
+        return Math.round(start + (end - start) * progress);
+    }
+
     function parseLRC(lrcText) {
         const lines = lrcText.split('\n');
         let lyrics = [];
@@ -184,7 +234,7 @@ window.addEventListener('load', () => {
                 const words = line.text.trim().split(' ');
                 words.forEach(word => {
                     const duration = lyrics[index].duration;
-                    if (duration > 800 && word.length > 1 && word.length < 4) {
+                    if (duration > 1200 && word.length > 1) {
                         const wordElement = document.createElement('span');
                         wordElement.dataset.index = index;
                         wordElement.style.setProperty('--word-duration', duration + 'ms');
@@ -413,7 +463,6 @@ window.addEventListener('load', () => {
             isButtonDisabled = false;
         }, 300);
     });
-    var preventblur = false;
     function scrollToTop() {
         window.scrollTo({
             top: 0,
@@ -548,10 +597,11 @@ window.addEventListener('load', () => {
             updateBlurEffect();
         }, 2000);
         if (preventblur) {
-            preventblur = false;
+            setTimeout(function () { preventblur = false; }, 500)
             return;
+        } else {
+            cancelBlurEffect();
         }
-        cancelBlurEffect()
     });
     function cancelBlurEffect() {
         const lines = document.querySelectorAll('.line');

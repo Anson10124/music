@@ -65,6 +65,7 @@ body {
     height: 100%;
     filter: blur(100px) brightness(0.4) saturate(2.5);
     -webkit-filter: blur(100px) brightness(0.4) saturate(2.5);
+    transition: background-color 1s;
 }
 
 .details {
@@ -253,7 +254,7 @@ body {
 }
 
 .line {
-    transition: filter 1.5s, background 0.3s;
+    transition: filter 0.5s;
     margin: 1.5em 0em 1.5em 0;
     cursor: pointer;
     padding: 1em;
