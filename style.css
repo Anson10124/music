@@ -262,6 +262,11 @@ body {
     border-radius: 16px;
 }
 
+.line-translated {
+    padding: 0 0 3em 0.5em;
+    margin: 0;
+}
+
 .context-menu {
     position: fixed;
     padding: 16px;
