@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API Example</title>
+</head>
+<body>
+    <h1>Fetch API Example</h1>
+    <label for="songname">Song Name:</label>
+    <input type="text" id="songname" placeholder="Enter song name">
+    <br>
+    <label for="artistname">Artist Name:</label>
+    <input type="text" id="artistname" placeholder="Enter artist name">
+    <br>
+    <button id="fetchButton">Fetch Data</button>
+    <pre id="result"></pre>
+
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', () => {
+            const songname = document.getElementById('songname').value;
+            const artistname = document.getElementById('artistname').value;
+
+            const url = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=2';
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.text(); // Handle response as text
+                })
+                .then(data => {
+                    const lineNumber = checkMatchLine(data, artistname);
+                    if (lineNumber !== -1) {
+                        fetchLineData(lineNumber);
+                    } else {
+                        document.getElementById('result').textContent = 'Artist not found in the list';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('result').textContent = 'Fetch error: ' + error;
+                });
+
+            function checkMatchLine(data, artist) {
+                const lines = data.split('\n');
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes(artist)) {
+                        return i + 1; // Line numbers are 1-based
+                    }
+                }
+                return -1; // Not found
+            }
+
+            function fetchLineData(lineNumber) {
+                const secondUrl = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=2&n=' + lineNumber;
+                
+                fetch(secondUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        document.getElementById('result').textContent = data;
+                    })
+                    .catch(error => {
+                        document.getElementById('result').textContent = 'Fetch error: ' + error;
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
