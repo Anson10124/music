@@ -19,7 +19,7 @@
     <script>
         document.getElementById('fetchButton').addEventListener('click', () => {
             const songname = document.getElementById('songname').value;
-            const artistname = document.getElementById('artistname').value;
+            const artistname = document.getElementById('artistname').value.toLowerCase();
 
             const url = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=2';
 
@@ -45,7 +45,7 @@
             function checkMatchLine(data, artist) {
                 const lines = data.split('\n');
                 for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].includes(artist)) {
+                    if (lines[i].toLowerCase().includes(artist)) {
                         return i + 1; // Line numbers are 1-based
                     }
                 }

@@ -26,12 +26,66 @@ window.addEventListener('load', () => {
                     imageOutput.src = base64;
                     Effect(base64);
                 }
+                tryfetch(title, artist);
             },
             onError: function (error) {
                 console.error('Error reading tags:', error);
             }
         });
     });
+    function tryfetch(title, artist) {
+        const songname = title;
+        const artistname = artist.toLowerCase();
+
+        const url = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=2';
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.text(); // Handle response as text
+            })
+            .then(data => {
+                const lineNumber = checkMatchLine(data, artistname);
+                if (lineNumber !== -1) {
+                    fetchLineData(lineNumber);
+                } else {
+                    console.log("Artist not found in the list");
+                }
+            })
+            .catch(error => {
+                console.log("Error");
+            });
+
+        function checkMatchLine(data, artist) {
+            const lines = data.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].toLowerCase().includes(artist)) {
+                    return i + 1; // Line numbers are 1-based
+                }
+            }
+            return -1; // Not found
+        }
+
+        function fetchLineData(lineNumber) {
+            const secondUrl = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=1&n=' + lineNumber;
+
+            fetch(secondUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.log("Error");
+                });
+        }
+    }
     var currentImage = null;
     var animationId = null;
     const colorThief = new ColorThief();
