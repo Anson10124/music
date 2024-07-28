@@ -36,18 +36,16 @@ window.addEventListener('load', () => {
     function tryfetch(title, artist) {
         const songname = title;
         const artistname = artist.toLowerCase();
-
         const url = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=2';
-
         fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
-                return response.text(); // Handle response as text
+                return response.text();
             })
             .then(data => {
-                const lineNumber = checkMatchLine(data, artistname);
+                const lineNumber = getBestMatchLine(data, artistname);
                 if (lineNumber !== -1) {
                     fetchLineData(lineNumber);
                 } else {
@@ -58,19 +56,33 @@ window.addEventListener('load', () => {
                 console.log("Error");
             });
 
-        function checkMatchLine(data, artist) {
+        function getBestMatchLine(data, artist) {
             const lines = data.split('\n');
+            let bestMatchIndex = -1;
+            let bestMatchScore = 0;
+
             for (let i = 0; i < lines.length; i++) {
-                if (lines[i].toLowerCase().includes(artist)) {
-                    return i + 1; // Line numbers are 1-based
+                const currentLine = lines[i].toLowerCase();
+                let score = 0;
+                const artistWords = artist.split(' ');
+
+                for (const word of artistWords) {
+                    if (currentLine.includes(word)) {
+                        score++;
+                    }
+                }
+
+                if (score > bestMatchScore) {
+                    bestMatchScore = score;
+                    bestMatchIndex = i;
                 }
             }
-            return -1; // Not found
+
+            return bestMatchIndex + 1;
         }
 
         function fetchLineData(lineNumber) {
             const secondUrl = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=1&n=' + lineNumber;
-
             fetch(secondUrl)
                 .then(response => {
                     if (!response.ok) {
@@ -91,7 +103,6 @@ window.addEventListener('load', () => {
     const colorThief = new ColorThief();
     const GRAY_TOLERANCE = 10;
     let blobs = [];
-
     function Effect(imageData) {
         if (currentImage) {
             currentImage.onload = null;
@@ -112,7 +123,6 @@ window.addEventListener('load', () => {
         };
         currentImage.src = imageData;
     }
-
     function applyEffect(smallContext, smallWidth, smallHeight, context, width, height) {
         if (animationId) {
             cancelAnimationFrame(animationId);
@@ -122,7 +132,6 @@ window.addEventListener('load', () => {
         var colors = colorThief.getPalette(currentImage, 12);
         var dominantColor = colorThief.getColor(currentImage);
         var originalDominantColor = dominantColor;
-
         if (isGray(dominantColor)) {
             for (let color of colors) {
                 if (!isGray(color)) {
@@ -131,32 +140,25 @@ window.addEventListener('load', () => {
                 }
             }
         }
-
         if (colors.length > 1 && isGray(colors[1])) {
             dominantColor = originalDominantColor;
         }
-
         document.getElementById('visual').style.backgroundColor = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
-
         colors = colors.filter(color =>
             !(color[0] === dominantColor[0] && color[1] === dominantColor[1] && color[2] === dominantColor[2])
         );
-
         if (blobs.length === 0) {
             blobs = createBlobs(20, colors);
         } else {
             updateBlobsColors(colors);
         }
-
         startLavaLampEffect(context, width, height);
     }
-
     function isGray(color) {
         return Math.abs(color[0] - color[1]) < GRAY_TOLERANCE &&
             Math.abs(color[1] - color[2]) < GRAY_TOLERANCE &&
             Math.abs(color[0] - color[2]) < GRAY_TOLERANCE;
     }
-
     function updateBlobsColors(colors) {
         blobs.forEach((blob, index) => {
             let newColor = colors[index % colors.length];
@@ -164,60 +166,48 @@ window.addEventListener('load', () => {
             blob.colorTransitionProgress = 0;
         });
     }
-
     function startLavaLampEffect(context, width, height) {
         animateBlobs(context, width, height);
     }
-
     function animateBlobs(context, width, height) {
         context.clearRect(0, 0, width, height);
         blobs.forEach(blob => {
             context.beginPath();
             context.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
-
-            // Smooth transition between colors
             blob.colorTransitionProgress = Math.min(blob.colorTransitionProgress + 0.01, 1);
             let r = interpolate(blob.color[0], blob.targetColor[0], blob.colorTransitionProgress);
             let g = interpolate(blob.color[1], blob.targetColor[1], blob.colorTransitionProgress);
             let b = interpolate(blob.color[2], blob.targetColor[2], blob.colorTransitionProgress);
             context.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
             context.fill();
-
             blob.dx += (blob.targetDx - blob.dx) * 0.001;
             blob.dy += (blob.targetDy - blob.dy) * 0.001;
             blob.x += blob.dx;
             blob.y += blob.dy;
-
             if (blob.x - blob.radius > width) {
                 blob.x = -blob.radius;
             } else if (blob.x + blob.radius < 0) {
                 blob.x = width + blob.radius;
             }
-
             if (blob.y - blob.radius > height) {
                 blob.y = -blob.radius;
             } else if (blob.y + blob.radius < 0) {
                 blob.y = height + blob.radius;
             }
-
             if (Math.random() < 0.001) {
                 changeDirection(blob);
             }
-
-            // Update blob color
             if (blob.colorTransitionProgress === 1) {
                 blob.color = blob.targetColor;
             }
         });
         animationId = requestAnimationFrame(() => animateBlobs(context, width, height));
     }
-
     function changeDirection(blob) {
         blob.targetDx = (Math.random() * 2 - 1) * 1.5;
         blob.targetDy = (Math.random() * 2 - 1) * 1.5;
         blob.angle = Math.random() * Math.PI * 2;
     }
-
     function createBlobs(numBlobs, colors) {
         const blobs = [];
         for (let i = 0; i < numBlobs; i++) {
@@ -233,19 +223,17 @@ window.addEventListener('load', () => {
                 dy: dy,
                 targetDx: dx,
                 targetDy: dy,
-                color: initialColor, // Initialize with a color from the palette
-                targetColor: initialColor, // Set target color to the same initial color
-                colorTransitionProgress: 1, // Start with the color fully applied
+                color: initialColor,
+                targetColor: initialColor,
+                colorTransitionProgress: 1,
                 angle: Math.random() * Math.PI * 2
             });
         }
         return blobs;
     }
-
     function interpolate(start, end, progress) {
         return Math.round(start + (end - start) * progress);
     }
-
     function parseLRC(lrcText) {
         const lines = lrcText.split('\n');
         let lyrics = [];
@@ -269,10 +257,12 @@ window.addEventListener('load', () => {
         }
         return lyrics;
     }
+    
     function parseTime(timeString) {
         const [minutes, seconds] = timeString.split(':').map(parseFloat);
         return minutes * 60 + seconds;
     }
+    
     function displayLyrics(lyrics) {
         let currentLine = document.createElement('div');
         currentLine.classList.add('line');
@@ -295,11 +285,12 @@ window.addEventListener('load', () => {
                         wordElement.classList.add('word');
                         const letters = word.split('');
                         const letterDuration = Math.round(duration / letters.length);
-                        letters.forEach(letter => {
+                        letters.forEach((letter, letterIndex) => {
                             const letterElement = document.createElement('span');
                             letterElement.textContent = letter;
                             letterElement.classList.add('letter');
                             letterElement.dataset.letterDuration = letterDuration;
+                            letterElement.dataset.lyricsIndex = `${letterIndex}`;
                             wordElement.appendChild(letterElement);
                         });
                         currentLine.appendChild(wordElement);
@@ -318,7 +309,7 @@ window.addEventListener('load', () => {
             currentLine.dataset.line = lineNumber;
             lyricsContainer.appendChild(currentLine);
         }
-    }
+    }    
     function highlightCurrentLyric() {
         const currentTime = audioPlayer.currentTime;
         const futureLyricElements = document.querySelectorAll('.word.played');
@@ -364,6 +355,10 @@ window.addEventListener('load', () => {
                                 letter.style.setProperty("--letter-progress", `${letterProcess * 140 - 40}%`);
                                 letter.classList.add('letter-played');
                                 letter.classList.add('letter-highlight');
+                                const nextLetter = letters[letterIndex + 1];
+                                if (nextLetter && letterProcess > 0.6) {
+
+                                }
                             } else if (currentTime >= letterEndTime) {
                                 if (letterDuration > 300) {
                                     letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
@@ -372,7 +367,6 @@ window.addEventListener('load', () => {
                                 }
                                 letter.classList.remove('letter-highlight');
                                 letter.classList.add('letter-played');
-                                letter.style.removeProperty('text-shadow');
                             } else {
                                 letter.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
                                 letter.classList.remove('letter-highlight');
@@ -457,9 +451,18 @@ window.addEventListener('load', () => {
         if (Date.now() - lastScrollTime < 500) return;
         var playingElement = document.querySelector('.playing');
         if (playingElement && isElementInViewport(playingElement)) {
-            playingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            playingElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             lastScrollTime = Date.now();
-            preventblur = true;
+            setTimeout(() => {
+                let topOffset;
+                if (window.innerWidth <= 600) {
+                    topOffset = window.innerHeight * 0.25;
+                } else {
+                    topOffset = window.innerHeight * 0.5 - playingElement.getBoundingClientRect().height / 2;
+                }
+                window.scrollBy({ top: playingElement.getBoundingClientRect().top - topOffset, behavior: 'smooth' });
+                preventblur = true;
+            }, 1);
         }
     }
     window.addEventListener('scroll', function () {

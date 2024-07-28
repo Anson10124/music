@@ -63,8 +63,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    filter: blur(100px) brightness(0.4) saturate(2.5);
-    -webkit-filter: blur(100px) brightness(0.4) saturate(2.5);
+    filter: blur(100px) brightness(0.8) saturate(1.8);
+    -webkit-filter: blur(100px) brightness(0.8) saturate(1.8);
     transition: background-color 1s;
 }
 
@@ -109,6 +109,7 @@ body {
     width: 60px;
     height: 60px;
     z-index: 100;
+    box-shadow: #000000d9 0px 8px 40px 0px;
 }
 
 #audio-player {
@@ -230,6 +231,7 @@ body {
     color: #ffffff33;
     transition: transform 1s,text-shadow calc(var(--word-duration) / 2);
     text-align: center;
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 1) var(--letter-progress), rgba(255, 255, 255, 0) calc(var(--letter-progress) + 40%))
 }
 
 .letter-highlight {
