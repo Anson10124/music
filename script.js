@@ -325,7 +325,6 @@ window.addEventListener('load', () => {
                 letter.classList.remove('letter-played');
             }
         });
-        let previousWordEndTime = 0;
         lyricsData.forEach((lyric, index) => {
             const wordStartTime = lyric.time;
             const wordEndTime = (index < lyricsData.length - 1) ? lyricsData[index + 1].time : Number.POSITIVE_INFINITY;
@@ -355,10 +354,6 @@ window.addEventListener('load', () => {
                                 letter.style.setProperty("--letter-progress", `${letterProcess * 140 - 40}%`);
                                 letter.classList.add('letter-played');
                                 letter.classList.add('letter-highlight');
-                                const nextLetter = letters[letterIndex + 1];
-                                if (nextLetter && letterProcess > 0.6) {
-
-                                }
                             } else if (currentTime >= letterEndTime) {
                                 if (letterDuration > 300) {
                                     letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
@@ -697,48 +692,5 @@ window.addEventListener('load', () => {
             rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
             rect.right <= (window.innerWidth || document.documentElement.clientWidth)
         );
-    }
-    const contextMenu = document.getElementById('context-menu');
-    const copyLineBtn = document.getElementById('copy-line-btn');
-    const copyAllBtn = document.getElementById('copy-all-btn');
-    lyricsContainer.addEventListener('contextmenu', function (event) {
-        event.preventDefault();
-        let clickedLine = event.target;
-        while (clickedLine && !clickedLine.classList.contains('line')) {
-            clickedLine = clickedLine.parentElement;
-        }
-        if (clickedLine) {
-            contextMenu.dataset.clickedLine = clickedLine.textContent;
-            contextMenu.style.top = event.clientY + 'px';
-            contextMenu.style.left = event.clientX + 'px';
-            contextMenu.style.opacity = "1";
-        }
-    });
-    document.addEventListener('click', function (event) {
-        if (!contextMenu.contains(event.target)) {
-            contextMenu.style.opacity = "0";
-        }
-    });
-    copyLineBtn.addEventListener('click', function () {
-        const clickedLine = contextMenu.dataset.clickedLine;
-        if (clickedLine) {
-            copyToClipboard(clickedLine.trim());
-        }
-        contextMenu.style.opacity = "0";
-    });
-    copyAllBtn.addEventListener('click', function () {
-        const allLyrics = Array.from(document.querySelectorAll('.line')).map(line => line.textContent.trim()).join('\n');
-        if (allLyrics) {
-            copyToClipboard(allLyrics);
-        }
-        contextMenu.style.opacity = "0";
-    });
-    function copyToClipboard(text) {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
     }
 });
