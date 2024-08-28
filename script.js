@@ -3,7 +3,7 @@ window.addEventListener('load', () => {
     const lyricsContainer = document.getElementById('lyrics-container');
     let lyricsData = [];
     let currentLyricIndex = 0;
-    let totalNumberOfSongs = 22;
+    let totalNumberOfSongs = 23;
     var preventblur = false;
     var nameOutput = document.getElementById('name');
     var artistOutput = document.getElementById('artist');
@@ -55,32 +55,26 @@ window.addEventListener('load', () => {
             .catch(error => {
                 console.log("Error");
             });
-
         function getBestMatchLine(data, artist) {
             const lines = data.split('\n');
             let bestMatchIndex = -1;
             let bestMatchScore = 0;
-
             for (let i = 0; i < lines.length; i++) {
                 const currentLine = lines[i].toLowerCase();
                 let score = 0;
                 const artistWords = artist.split(' ');
-
                 for (const word of artistWords) {
                     if (currentLine.includes(word)) {
                         score++;
                     }
                 }
-
                 if (score > bestMatchScore) {
                     bestMatchScore = score;
                     bestMatchIndex = i;
                 }
             }
-
             return bestMatchIndex + 1;
         }
-
         function fetchLineData(lineNumber) {
             const secondUrl = 'https://www.hhlqilongzhu.cn/api/dg_geci.php?msg=' + encodeURIComponent(songname) + '&type=1&n=' + lineNumber;
             fetch(secondUrl)
@@ -103,6 +97,7 @@ window.addEventListener('load', () => {
     const colorThief = new ColorThief();
     const GRAY_TOLERANCE = 10;
     let blobs = [];
+    const numBlobs = 25;
     function Effect(imageData) {
         if (currentImage) {
             currentImage.onload = null;
@@ -128,7 +123,6 @@ window.addEventListener('load', () => {
             cancelAnimationFrame(animationId);
         }
         var smallImageData = smallContext.getImageData(0, 0, smallWidth, smallHeight);
-        var data = smallImageData.data;
         var colors = colorThief.getPalette(currentImage, 12);
         var dominantColor = colorThief.getColor(currentImage);
         var originalDominantColor = dominantColor;
@@ -143,12 +137,12 @@ window.addEventListener('load', () => {
         if (colors.length > 1 && isGray(colors[1])) {
             dominantColor = originalDominantColor;
         }
-        document.getElementById('visual').style.backgroundColor = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+        document.getElementById('visual').style.background = `rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.8)`;
         colors = colors.filter(color =>
             !(color[0] === dominantColor[0] && color[1] === dominantColor[1] && color[2] === dominantColor[2])
         );
         if (blobs.length === 0) {
-            blobs = createBlobs(20, colors);
+            blobs = createBlobs(numBlobs, colors);
         } else {
             updateBlobsColors(colors);
         }
@@ -178,10 +172,12 @@ window.addEventListener('load', () => {
             let r = interpolate(blob.color[0], blob.targetColor[0], blob.colorTransitionProgress);
             let g = interpolate(blob.color[1], blob.targetColor[1], blob.colorTransitionProgress);
             let b = interpolate(blob.color[2], blob.targetColor[2], blob.colorTransitionProgress);
-            context.fillStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+            context.fillStyle = `rgba(${r}, ${g}, ${b}, 0.7)`;
+            context.shadowBlur = 30;
+            context.shadowColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
             context.fill();
-            blob.dx += (blob.targetDx - blob.dx) * 0.001;
-            blob.dy += (blob.targetDy - blob.dy) * 0.001;
+            blob.dx += (blob.targetDx - blob.dx) * 0.02;
+            blob.dy += (blob.targetDy - blob.dy) * 0.02;
             blob.x += blob.dx;
             blob.y += blob.dy;
             if (blob.x - blob.radius > width) {
@@ -194,7 +190,7 @@ window.addEventListener('load', () => {
             } else if (blob.y + blob.radius < 0) {
                 blob.y = height + blob.radius;
             }
-            if (Math.random() < 0.001) {
+            if (Math.random() < 0.002) {
                 changeDirection(blob);
             }
             if (blob.colorTransitionProgress === 1) {
@@ -204,21 +200,21 @@ window.addEventListener('load', () => {
         animationId = requestAnimationFrame(() => animateBlobs(context, width, height));
     }
     function changeDirection(blob) {
-        blob.targetDx = (Math.random() * 2 - 1) * 1.5;
-        blob.targetDy = (Math.random() * 2 - 1) * 1.5;
+        blob.targetDx = (Math.random() * 2 - 1);
+        blob.targetDy = (Math.random() * 2 - 1);
         blob.angle = Math.random() * Math.PI * 2;
     }
     function createBlobs(numBlobs, colors) {
         const blobs = [];
         for (let i = 0; i < numBlobs; i++) {
-            let dx = (Math.random() * 2 - 1) * 1.5;
-            let dy = (Math.random() * 2 - 1) * 1.5;
-            let blobSize = Math.sqrt(window.innerHeight * window.innerWidth) / 10;
+            let dx = (Math.random() * 2 - 1);
+            let dy = (Math.random() * 2 - 1);
+            let blobSize = Math.sqrt(window.innerHeight * window.innerWidth) / 4.5;
             let initialColor = colors[i % colors.length];
             blobs.push({
                 x: Math.random() * window.innerWidth,
                 y: Math.random() * window.innerHeight,
-                radius: Math.random() * 70 + blobSize,
+                radius: Math.random() * 50 + blobSize,
                 dx: dx,
                 dy: dy,
                 targetDx: dx,
@@ -250,69 +246,99 @@ window.addEventListener('load', () => {
                 });
             }
         });
+        let withInstrumentals = [];
         for (let i = 0; i < lyrics.length; i++) {
             const startTime = lyrics[i].time;
             const endTime = (i < lyrics.length - 1) ? lyrics[i + 1].time : startTime + 1;
-            lyrics[i].duration = Math.round((endTime - startTime) * 1000);
+            const duration = Math.round((endTime - startTime) * 1000);
+            lyrics[i].duration = duration;
+            withInstrumentals.push(lyrics[i]);
+            if (i < lyrics.length - 1 && (endTime - startTime) > 10) {
+                withInstrumentals.push({
+                    time: startTime,
+                    text: '',
+                    isInstrumental: true,
+                    duration: (endTime - (startTime + 10)) * 1000
+                });
+            }
         }
-        return lyrics;
+        return withInstrumentals;
     }
-    
     function parseTime(timeString) {
         const [minutes, seconds] = timeString.split(':').map(parseFloat);
         return minutes * 60 + seconds;
     }
-    
     function displayLyrics(lyrics) {
         let currentLine = document.createElement('div');
         currentLine.classList.add('line');
         let lineNumber = 1;
         lyrics.forEach((line, index) => {
-            if (line.text.trim() === '') {
-                currentLine.dataset.line = lineNumber;
-                lyricsContainer.appendChild(currentLine);
-                currentLine = document.createElement('div');
-                currentLine.classList.add('line');
+            if (line.isInstrumental) {
+                if (currentLine.textContent.trim() !== '') {
+                    currentLine.dataset.line = lineNumber;
+                    lyricsContainer.appendChild(currentLine);
+                    currentLine = document.createElement('div');
+                    currentLine.classList.add('line');
+                    lineNumber++;
+                }
+                const instrumentalLine = document.createElement('div');
+                instrumentalLine.classList.add('line');
+                instrumentalLine.classList.add('instrumental');
+                const dotElement = document.createElement('span');
+                dotElement.classList.add('instrumental-dot');
+                dotElement.dataset.index = index;
+                dotElement.textContent = '• • •';
+                dotElement.style.setProperty('--dot-duration', line.duration + 'ms');
+                instrumentalLine.appendChild(dotElement);
+                lyricsContainer.appendChild(instrumentalLine);
                 lineNumber++;
             } else {
-                const words = line.text.trim().split(' ');
-                words.forEach(word => {
-                    const duration = lyrics[index].duration;
-                    if (duration > 1200 && word.length > 1) {
-                        const wordElement = document.createElement('span');
-                        wordElement.dataset.index = index;
-                        wordElement.style.setProperty('--word-duration', duration + 'ms');
-                        wordElement.classList.add('word');
-                        const letters = word.split('');
-                        const letterDuration = Math.round(duration / letters.length);
-                        letters.forEach((letter, letterIndex) => {
-                            const letterElement = document.createElement('span');
-                            letterElement.textContent = letter;
-                            letterElement.classList.add('letter');
-                            letterElement.dataset.letterDuration = letterDuration;
-                            letterElement.dataset.lyricsIndex = `${letterIndex}`;
-                            wordElement.appendChild(letterElement);
-                        });
-                        currentLine.appendChild(wordElement);
-                    } else {
-                        const wordElement = document.createElement('span');
-                        wordElement.textContent = word + ' ';
-                        wordElement.dataset.index = index;
-                        wordElement.style.setProperty('--word-duration', duration + 'ms');
-                        wordElement.classList.add('word');
-                        currentLine.appendChild(wordElement);
-                    }
-                });
+                if (line.text.trim() === '') {
+                    currentLine.dataset.line = lineNumber;
+                    lyricsContainer.appendChild(currentLine);
+                    currentLine = document.createElement('div');
+                    currentLine.classList.add('line');
+                    lineNumber++;
+                } else {
+                    const words = line.text.trim().split(' ');
+                    words.forEach(word => {
+                        const duration = lyrics[index].duration;
+                        if (duration > 1200 && word.length > 1) {
+                            const wordElement = document.createElement('span');
+                            wordElement.dataset.index = index;
+                            wordElement.style.setProperty('--word-duration', duration + 'ms');
+                            wordElement.classList.add('word');
+                            const letters = word.split('');
+                            const letterDuration = Math.round(duration / letters.length);
+                            letters.forEach((letter, letterIndex) => {
+                                const letterElement = document.createElement('span');
+                                letterElement.textContent = letter;
+                                letterElement.classList.add('letter');
+                                letterElement.dataset.letterDuration = letterDuration;
+                                letterElement.dataset.lyricsIndex = `${letterIndex}`;
+                                wordElement.appendChild(letterElement);
+                            });
+                            currentLine.appendChild(wordElement);
+                        } else {
+                            const wordElement = document.createElement('span');
+                            wordElement.textContent = word + ' ';
+                            wordElement.dataset.index = index;
+                            wordElement.style.setProperty('--word-duration', duration + 'ms');
+                            wordElement.classList.add('word');
+                            currentLine.appendChild(wordElement);
+                        }
+                    });
+                }
             }
         });
         if (currentLine.textContent.trim() !== '') {
             currentLine.dataset.line = lineNumber;
             lyricsContainer.appendChild(currentLine);
         }
-    }    
+    }
     function highlightCurrentLyric() {
         const currentTime = audioPlayer.currentTime;
-        const futureLyricElements = document.querySelectorAll('.word.played');
+        const futureLyricElements = document.querySelectorAll('.word.played, .instrumental-dot.played');
         futureLyricElements.forEach(element => {
             const index = parseInt(element.dataset.index);
             if (lyricsData[index].time > currentTime) {
@@ -329,54 +355,61 @@ window.addEventListener('load', () => {
             const wordStartTime = lyric.time;
             const wordEndTime = (index < lyricsData.length - 1) ? lyricsData[index + 1].time : Number.POSITIVE_INFINITY;
             if (wordStartTime <= currentTime && currentTime < wordEndTime) {
-                const lyricElements = document.querySelectorAll(`.word[data-index="${index}"]`);
+                const lyricElements = document.querySelectorAll(`.word[data-index="${index}"], .instrumental-dot[data-index="${index}"]`);
                 lyricElements.forEach(element => {
                     element.classList.add('played');
-                    const wordDuration = wordEndTime - wordStartTime;
-                    const elapsedTime = currentTime - wordStartTime;
-                    const wordProcess = (elapsedTime / wordDuration);
-                    element.style.setProperty("--gradient-progress", `${wordProcess * 120 - 20}%`);
-                    const letters = element.querySelectorAll('.letter');
-                    if (letters.length > 0) {
-                        const letterDuration = parseFloat(letters[0].dataset.letterDuration);
-                        letters.forEach((letter, letterIndex) => {
-                            const letterStartTime = wordStartTime + (letterIndex * letterDuration) / 1000;
-                            const letterEndTime = letterStartTime + letterDuration / 1000;
-                            const letterElapsedTime = currentTime - letterStartTime;
-                            if (currentTime >= letterStartTime && currentTime < letterEndTime) {
-                                const letterProcess = (letterElapsedTime / (letterDuration / 1000));
-                                if (letterDuration > 300) {
-                                    letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
-                                    letter.style.textShadow = '0px 0px 20px #FFFFFF66';
+                    if (!lyric.isInstrumental) {
+                        const wordDuration = wordEndTime - wordStartTime;
+                        const elapsedTime = currentTime - wordStartTime;
+                        const wordProcess = (elapsedTime / wordDuration);
+                        element.style.setProperty("--gradient-progress", `${wordProcess * 120 - 20}%`);
+                        const letters = element.querySelectorAll('.letter');
+                        if (letters.length > 0) {
+                            const letterDuration = parseFloat(letters[0].dataset.letterDuration);
+                            letters.forEach((letter, letterIndex) => {
+                                const letterStartTime = wordStartTime + (letterIndex * letterDuration) / 1000;
+                                const letterEndTime = letterStartTime + letterDuration / 1000;
+                                const letterElapsedTime = currentTime - letterStartTime;
+                                if (currentTime >= letterStartTime && currentTime < letterEndTime) {
+                                    const letterProcess = (letterElapsedTime / (letterDuration / 1000));
+                                    if (letterDuration > 300) {
+                                        letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
+                                        letter.style.textShadow = '0px 0px 20px #FFFFFF66';
+                                    } else {
+                                        letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
+                                    }
+                                    letter.style.setProperty("--letter-progress", `${letterProcess * 140 - 40}%`);
+                                    letter.classList.add('letter-played');
+                                    letter.classList.add('letter-highlight');
+                                } else if (currentTime >= letterEndTime) {
+                                    if (letterDuration > 300) {
+                                        letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
+                                    } else {
+                                        letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
+                                    }
+                                    letter.classList.remove('letter-highlight');
+                                    letter.classList.add('letter-played');
                                 } else {
-                                    letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
+                                    letter.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
+                                    letter.classList.remove('letter-highlight');
+                                    letter.style.removeProperty('text-shadow');
                                 }
-                                letter.style.setProperty("--letter-progress", `${letterProcess * 140 - 40}%`);
-                                letter.classList.add('letter-played');
-                                letter.classList.add('letter-highlight');
-                            } else if (currentTime >= letterEndTime) {
-                                if (letterDuration > 300) {
-                                    letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
-                                } else {
-                                    letter.style.transform = 'matrix(1, 0, 0, 1, 0, -5)';
-                                }
-                                letter.classList.remove('letter-highlight');
-                                letter.classList.add('letter-played');
-                            } else {
-                                letter.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
-                                letter.classList.remove('letter-highlight');
-                                letter.style.removeProperty('text-shadow');
-                            }
-                        });
+                            });
+                        }
+                    } else {
+                        const dotDuration = wordEndTime - wordStartTime;
+                        const dotElapsedTime = currentTime - wordStartTime;
+                        const dotProcess = (dotElapsedTime / dotDuration);
+                        element.style.setProperty("--instrumental-progress", `${dotProcess * 120 - 60}%`);
                     }
                 });
             } else {
-                const lyricElements = document.querySelectorAll(`.word[data-index="${index}"]`);
+                const lyricElements = document.querySelectorAll(`.word[data-index="${index}"], .instrumental-dot[data-index="${index}"]`);
                 lyricElements.forEach(element => {
                     element.style.removeProperty('--gradient-progress');
                     const letters = element.querySelectorAll('.letter');
                     letters.forEach(letter => {
-                        letter.style.removeProperty('transform')
+                        letter.style.removeProperty('transform');
                         letter.style.removeProperty('text-shadow');
                         letter.style.removeProperty('--letter-progress');
                         letter.classList.remove('letter-highlight');
@@ -386,7 +419,7 @@ window.addEventListener('load', () => {
         });
         lyricsData.forEach((lyric, index) => {
             if (lyric.time <= currentTime) {
-                const lyricElements = document.querySelectorAll(`.word[data-index="${index}"]`);
+                const lyricElements = document.querySelectorAll(`.word[data-index="${index}"], .instrumental-dot[data-index="${index}"]`);
                 lyricElements.forEach(element => {
                     element.classList.add('played');
                     const letters = element.querySelectorAll('.letter');
@@ -408,7 +441,7 @@ window.addEventListener('load', () => {
                 break;
             }
         }
-        const lyricsElements = lyricsContainer.querySelectorAll('.word');
+        const lyricsElements = lyricsContainer.querySelectorAll('.word, .instrumental-dot');
         lyricsElements.forEach((element, index) => {
             const isCurrentWord = parseInt(element.dataset.index) === currentLyricIndex;
             if (isCurrentWord) {
@@ -429,9 +462,7 @@ window.addEventListener('load', () => {
         });
     }
     setInterval(highlightCurrentLyric, 20);
-    audioPlayer.addEventListener('timeupdate', () => {
-        autoscroll()
-    });
+    setInterval(autoscroll, 20);
     function isElementInViewport(el) {
         var rect = el.getBoundingClientRect();
         return (
@@ -477,12 +508,56 @@ window.addEventListener('load', () => {
     const playPauseButton = document.getElementById('play');
     const nextButton = document.getElementById('next');
     const previousButton = document.getElementById('previous');
+    const loopButton = document.getElementById('loop');
+    const controlButton = document.getElementById('control');
+    const closeButton = document.getElementById('close-control');
     const progressBar = document.querySelector('.progress-bar');
     const progress = document.querySelector('.progress');
     let isDragging = false;
     let startX = 0;
     let currentSongIndex = 1;
     let isButtonDisabled = false;
+    loopButton.addEventListener('click', function () {
+        if (!audioPlayer.loop) {
+            audioPlayer.loop = true;
+            loopButton.children[0].style.color = '#ffffff';
+        } else {
+            audioPlayer.loop = false;
+            loopButton.children[0].style.color = '#ffffff80';
+        }
+    });
+    controlButton.addEventListener('click', function () {
+        $(".music-player").css("opacity", "0");
+        $(".music-player").css("filter", "blur(50px)");
+        setTimeout(function () { $(".music-player").css("display", "none"); $(".music-player").css("opacity", "0"); }, 500);
+        $(".audio-controls").css("display", "flex");
+        setTimeout(function () { $(".audio-controls").css("opacity", "1"); $(".audio-controls").css("filter", "blur(0px)"); }, 500);
+    });
+
+    closeButton.addEventListener('click', function () {
+        $(".audio-controls").css("opacity", "0");
+        $(".audio-controls").css("filter", "blur(50px)");
+        setTimeout(function () {
+            $(".audio-controls").css("display", "none")
+            $(".music-player").css("display", "block")
+            setTimeout(function () {
+                $(".music-player").css("opacity", "1");
+                $(".music-player").css("filter", "unset");
+            }, 10);
+        }, 500);
+    });
+    const volumeSlider = document.getElementById('volume-slider');
+    const savedVolume = localStorage.getItem('audioVolume');
+    if (savedVolume !== null) {
+        audioPlayer.volume = savedVolume;
+        volumeSlider.value = savedVolume;
+    } else {
+        audioPlayer.volume = volumeSlider.value;
+    }
+    volumeSlider.addEventListener('input', () => {
+        audioPlayer.volume = volumeSlider.value;
+        localStorage.setItem('audioVolume', volumeSlider.value);
+    });
     nextButton.addEventListener('click', function () {
         if (isButtonDisabled) return;
         isButtonDisabled = true;
@@ -678,9 +753,14 @@ window.addEventListener('load', () => {
             lines.forEach(line => {
                 const lineNumber = parseInt(line.dataset.line);
                 const distance = Math.abs(lineNumber - playingLine);
-                const blurAmount = Math.min(6, distance * 1.5);
-                line.style.filter = `blur(${blurAmount}px)`;
-                line.style.webkitFilter = `blur(${blurAmount}px)`;
+                const blurAmount = Math.min(6, distance + 1);
+                if (blurAmount == 1) {
+                    line.style.filter = `blur(${blurAmount - 1}px)`;
+                    line.style.webkitFilter = `blur(${blurAmount - 1}px)`;
+                } else {
+                    line.style.filter = `blur(${blurAmount}px)`;
+                    line.style.webkitFilter = `blur(${blurAmount}px)`;
+                }
             });
         }
     }

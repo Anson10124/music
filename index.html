@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
+    <canvas id="visual"></canvas>
     <div class="music-player">
-        <canvas id="visual"></canvas>
         <div class="details">
             <!--<div class="details-bg"></div>-->
             <div id="info">
@@ -27,9 +27,11 @@
             <!--<div class="player-bg"></div>-->
             <div class="control-con">
                 <div class="control">
+                    <button id="control"><i class="fa-solid fa-sliders"></i></button>
                     <button id="previous"><i class="fa-solid fa-backward-step"></i></button>
                     <button id="play"><i class="fas fa-play"></i></button>
                     <button id="next"><i class="fa-solid fa-forward-step"></i></button>
+                    <button id="loop"><i class="fa-solid fa-repeat"></i></i></button>
                 </div>
                 <div class="progress-con">
                     <span class="current-time"></span>
@@ -41,8 +43,15 @@
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <div class="audio-controls">
+        <button id="close-control" style="position: absolute;top: 28px;right: 30px;border: none;background: transparent;color: #fff;font-size: 32px;padding: 0;width: 32px;height: 32px;"><i class="fa-solid fa-xmark"></i></button>
+        <div class="volume-control">
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
